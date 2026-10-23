@@ -1,15 +1,48 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AppLayout } from './components/layout/AppLayout'
+import { DashboardPage } from './pages/DashboardPage'
+import { LeadsPage } from './pages/LeadsPage'
+import { FollowUpsPage } from './pages/FollowUpsPage'
+import { SettingsPage } from './pages/SettingsPage'
+import { LoginPage } from './pages/LoginPage'
+import { NotFoundPage } from './pages/NotFoundPage'
+
 export default function App() {
+  // Check if environment variables are configured
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const isSupabaseConfigured = Boolean(
+    supabaseUrl &&
+    supabaseKey &&
+    !supabaseUrl.includes('your-project-id') &&
+    !supabaseKey.includes('your-public-client-key')
+  )
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#0f172a', color: '#f8fafc' }}>
-      <div style={{ textAlign: 'center', maxWidth: '480px', padding: '2rem', backgroundColor: '#1e293b', borderRadius: '12px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: '#38bdf8' }}>BrightPath CRM</h1>
-        <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: '0 0 1.5rem 0' }}>
-          Inquiry-to-Admission CRM for BrightPath Academy
-        </p>
-        <div style={{ display: 'inline-block', padding: '0.5rem 1rem', backgroundColor: '#0369a1', color: '#e0f2fe', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500 }}>
-          Phase 0: Baseline & Secure Foundation Active
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* Standalone Authentication Route (No Sidebar/Header) */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Protected Application Layout Shell */}
+        <Route
+          element={
+            <AppLayout
+              currentRole="admin"
+              userName="Sarah Jenkins"
+              userEmail="sarah.j@brightpath.edu"
+              isSupabaseConfigured={isSupabaseConfigured}
+            />
+          }
+        >
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/leads" element={<LeadsPage />} />
+          <Route path="/follow-ups" element={<FollowUpsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
